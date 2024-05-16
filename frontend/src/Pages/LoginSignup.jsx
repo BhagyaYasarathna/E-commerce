@@ -10,16 +10,25 @@ export const LoginSignup = () => {
     email:""
   })
 
+  // const changeHandler = (e) => {
+  //   setFormData({...formData, [e.target.name]:e.target.value})
+  // }
+
   const changeHandler = (e) => {
-    setFormData({...formData, [e.target.name]:e.target.value})
-  }
+    const { name, value } = e.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+  };
+  
 
   const login = async () => {
     console.log("Login Function Executed", formData);   
     let responseData;
     await fetch('http://localhost:4000/login', {
       method:'POST',
-      header:{
+      headers:{
         Accept:'application/form-data',
         'Content-Type':'application/json',
       },
@@ -40,7 +49,7 @@ export const LoginSignup = () => {
     let responseData;
     await fetch('http://localhost:4000/signup', {
       method:'POST',
-      header:{
+      headers:{
         Accept:'application/form-data',
         'Content-Type':'application/json',
       },

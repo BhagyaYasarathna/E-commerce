@@ -98,9 +98,9 @@ app.post("/addproduct", async (req, res) => {
         new_price: req.body.new_price,
         old_price: req.body.old_price,
     });
-    console.log(product);
+    // console.log(product);
     await product.save();
-    console.log("Saved");
+    // console.log("Saved");
     res.json({
         success: true,
         name: req.body.name,
@@ -110,7 +110,7 @@ app.post("/addproduct", async (req, res) => {
 // Creating API for Deleting Products
 app.post("/removeproduct", async (req, res) => {
     await Product.findOneAndDelete({ id: req.body.id });
-    console.log("Removed");
+    // console.log("Removed");
     res.json({
         success: true,
         name: req.body.name,
@@ -120,7 +120,7 @@ app.post("/removeproduct", async (req, res) => {
 // Creating API for getting all products
 app.get("/allproducts", async (req, res) => {
     let products = await Product.find({});
-    console.log("All Products Fetched");
+    // console.log("All Products Fetched");
     res.send(products);
 });
 
@@ -150,7 +150,7 @@ app.post("/signup", async (req, res) => {
     let check = await Users.findOne({ email: req.body.email });
     if (check) {
         return res.status(400).json({
-            syccess: false,
+            success: false,
             errors: "existing user found with same email address",
         });
     }
@@ -166,6 +166,7 @@ app.post("/signup", async (req, res) => {
     });
 
     await user.save();
+    console.log(user);
 
     // Adding JWT Authentication
     const data = {
@@ -202,7 +203,7 @@ app.post("/login", async (req, res) => {
 app.get("/newcollections", async (req, res) => {
     let products = await Product.find({});
     let newcollection = products.slice(1).slice(-8);
-    console.log("New Collection Fetched");
+    // console.log("New Collection Fetched");
     res.send(newcollection);
 });
 
@@ -210,7 +211,7 @@ app.get("/newcollections", async (req, res) => {
 app.get("/popularinwomen", async (req, res) => {
     let products = await Product.find({ category: "women" });
     let popular_in_woen = products.slice(0, 4);
-    console.log("Popular in women fetched");
+    // console.log("Popular in women fetched");
     res.send(popular_in_woen);
 });
 
@@ -236,7 +237,7 @@ const fetchUser = async (req, res, next) => {
 
 // Creatin gendpoint for Adding Products for Cartdata
 app.post("/addtocart", fetchUser, async (req, res) => {
-    console.log("added", req.body.itemId);
+    // console.log("added", req.body.itemId);
     let userData = await Users.findOne({ _id: req.user.id });
     userData.cartData[req.body.itemId] += 1;
     await Users.findOneAndUpdate(
@@ -248,7 +249,7 @@ app.post("/addtocart", fetchUser, async (req, res) => {
 
 // Creating Endpoint to Remove Product From Cartdata
 app.post("/removefromcart", fetchUser, async (req, res) => {
-    console.log("removed", req.body.itemId);
+    // console.log("removed", req.body.itemId);
     let userData = await Users.findOne({ _id: req.user.id });
     if (userData.cartData[req.body.itemId] > 0)
         userData.cartData[req.body.itemId] -= 1;
@@ -261,7 +262,7 @@ app.post("/removefromcart", fetchUser, async (req, res) => {
 
 // Creating Endpoint to Get Cartdata
 app.post("/getcart", fetchUser, async (req, res) => {
-    console.log("GetCart");
+    // console.log("GetCart");
     let userData = await Users.findOne({ _id: req.user.id });
     res.json(userData.cartData);
 });
