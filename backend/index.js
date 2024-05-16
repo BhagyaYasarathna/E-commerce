@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
+const { type } = require("os");
 
 app.use(express.json()); //whatever request we get from response that will automatically passed through json
 app.use(cors()); //react js project will connnect to express app on 4000 port
@@ -121,6 +122,80 @@ app.get("/allproducts", async (req, res) => {
     let products = await Product.find({});
     console.log("All Products Fetched");
     res.send(products);
+});
+
+// Schema Creating for User Model
+const Users = mongoose.model("Users", {
+    name: {
+        type: String,
+    },
+    email: {
+        type: String,
+        unique: true,
+    },
+    password: {
+        type: String,
+    },
+    cartData: {
+        type: Object,
+    },
+    date: {
+        type: Date,
+        default: Date.now,
+    },
+});
+
+// Creating Endpoint for Registering the User
+app.post("/signup", async (req, res) => {
+    let check = await Users.findOne({ email: req.body.email });
+    if (check) {
+        return res.status(400).json({
+            syccess: false,
+            errors: "existing user found with same email address",
+        });
+    }
+    let cart = {};
+    for (let i = 0; i < 300; i++) {
+        cart[i] = 0;
+    }
+    const user = new Users({
+        name: req.body.username,
+        email: req.body.email,
+        password: req.body.password,
+        cartData: cart,
+    });
+
+    await user.save();
+
+    // Adding JWT Authentication
+    const data = {
+        user: {
+            id: user.id,
+        },
+    };
+    const token = jwt.sign(data, "secret_ecom"); //salt : secret_ecom
+    res.json({ success: true, token });
+});
+
+// Creating Endpoint for User Login
+app.post("/login", async (req, res) => {
+    let user = await Users.findOne({ email: req.body.email });
+    if (user) {
+        const passCompare = req.body.password == user.password;
+        if (passCompare) {
+            const data = {
+                user: {
+                    id: user.id,
+                },
+            };
+            const token = jwt.sign(data, "secret_ecom");
+            res.json({ success: true, token });
+        } else {
+            res.json({ success: false, errors: "Wrong Password" });
+        }
+    } else {
+        res.json({ success: false, errors: "Wrong Email Address" });
+    }
 });
 
 app.listen(port, (error) => {
